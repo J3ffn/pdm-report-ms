@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     url: ${DATA_POSTGRES_URL:jdbc:postgresql://localhost:5432/denguemaps_db}
-    username: ${DATA_POSTGRES_USERNAME:jeff}
+    username: ${DATA_POSTGRES_USERNAME:denguemaps}
     password: ${DATA_POSTGRES_PASSWORD:1234}
   jpa:
     hibernate:
@@ -17,8 +17,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${SECURITY_JWT_ISSUER-URI:http://localhost:8080}/realms/realm-demo
-          jwk-set-uri: ${SECURITY_JWT_JWK-SET-URI:http://localhost:8080}/realms/realm-demo/protocol/openid-connect/certs
+          issuer-uri: ${JWT_ISSUER-URI:http://localhost:8080/realms/denguemaps}
+          jwk-set-uri: ${JWT_JWK-URI:http://localhost:8080/realms/denguemaps/protocol/openid-connect/certs}
 
 jwt:
   auth:
