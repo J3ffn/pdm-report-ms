@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
-
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -16,6 +15,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Report {
 
     @Id
@@ -26,6 +26,7 @@ public class Report {
     @Column(columnDefinition = "jsonb", nullable = false)
     @Type(io.hypersistence.utils.hibernate.type.json.JsonType.class)
     private String coordenadas;
+
 
     @Column(name = "classificacao_risco")
     private String classificacaoRisco;
