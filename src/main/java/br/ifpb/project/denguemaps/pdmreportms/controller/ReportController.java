@@ -1,10 +1,13 @@
 package br.ifpb.project.denguemaps.pdmreportms.controller;
 
 
+import br.ifpb.project.denguemaps.pdmreportms.dto.municipio.MunicipioBuscaDTO;
 import br.ifpb.project.denguemaps.pdmreportms.dto.report.ReportCriacaoDTO;
+import br.ifpb.project.denguemaps.pdmreportms.dto.report.ReportObjetoDTO;
 import br.ifpb.project.denguemaps.pdmreportms.dto.report.ReportResponseDTO;
 import br.ifpb.project.denguemaps.pdmreportms.dto.report.ReportAtualizarDTO;
 import br.ifpb.project.denguemaps.pdmreportms.service.ReportService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,6 +77,27 @@ public class ReportController {
         List<ReportResponseDTO> listaReport = reportService.buscarTodoReport();
         return new ResponseEntity<>(listaReport, HttpStatus.OK);
     }
+
+    @GetMapping
+    public ResponseEntity<List<ReportResponseDTO>> buscarReportObjeto(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody ReportObjetoDTO request){
+        List<ReportResponseDTO> listaReport = reportService.buscarReportObjeto(request);
+        return new ResponseEntity<>(listaReport, HttpStatus.OK);
+    }
+
+    @GetMapping("/all-municipio")
+    public ResponseEntity<List<ReportResponseDTO>> buscarReportsPorMunicipio(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody MunicipioBuscaDTO request) {
+        List<ReportResponseDTO> listaReports = reportService.buscarReportsPorMunicipio(
+                request.getNome(),
+                request.getId(),
+                request.getEstado()
+        );
+        return new ResponseEntity<>(listaReports, HttpStatus.OK);
+    }
+
 
 
 }

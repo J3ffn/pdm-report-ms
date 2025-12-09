@@ -2,11 +2,15 @@ package br.ifpb.project.denguemaps.pdmreportms.service;
 
 
 import br.ifpb.project.denguemaps.pdmreportms.dto.report.ReportCriacaoDTO;
+import br.ifpb.project.denguemaps.pdmreportms.dto.report.ReportObjetoDTO;
 import br.ifpb.project.denguemaps.pdmreportms.dto.report.ReportResponseDTO;
 import br.ifpb.project.denguemaps.pdmreportms.dto.report.ReportAtualizarDTO;
 import br.ifpb.project.denguemaps.pdmreportms.entity.Cidadao;
+import br.ifpb.project.denguemaps.pdmreportms.entity.Municipio;
 import br.ifpb.project.denguemaps.pdmreportms.entity.Report;
+import br.ifpb.project.denguemaps.pdmreportms.enums.Estado;
 import br.ifpb.project.denguemaps.pdmreportms.repository.CidadaoRepository;
+import br.ifpb.project.denguemaps.pdmreportms.repository.MunicipioRepository;
 import br.ifpb.project.denguemaps.pdmreportms.repository.ReportRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -24,6 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReportService {
     private final ReportRepository reportRepository;
+    private final MunicipioRepository municipioRepository;
     private final CidadaoRepository cidadaoRepository;
 
     
@@ -53,6 +59,45 @@ public class ReportService {
     public List<ReportResponseDTO> buscarReportEspecifico(UUID uuid){
         List<Report> reports = reportRepository.findAllById(Collections.singleton(uuid));
         return mapearReportsResponseDTO(reports);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReportResponseDTO> buscarReportObjeto(ReportObjetoDTO reportObjetoDTO){
+        List<Report> Listreport = reportRepository.findByObjetoReport(
+                reportObjetoDTO.getId(),
+                reportObjetoDTO.getCoordenadas(),
+                reportObjetoDTO.getClassificacaoRisco(),
+                reportObjetoDTO.getFkCidadaoID()
+        );
+
+        return mapearReportsResponseDTO(Listreport);
+
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<ReportResponseDTO> buscarReportsPorMunicipio(String nome, UUID id, Estado estado) {
+        if (id == null && (nome == null || nome.isBlank())) {
+            throw new IllegalArgumentException("É necessário fornecer o ID do Município ou o Nome do Município.");
+        }
+        Optional<Municipio> municipioOpt = Optional.empty();
+        if (id != null) {
+            municipioOpt = municipioRepository.buscarPorNomeOuIdEEstado(null, id, estado.name());
+        }
+        if (municipioOpt.isEmpty() && nome != null && !nome.isBlank()) {
+            municipioOpt = municipioRepository.buscarPorNomeOuIdEEstado(nome, null, estado.name());
+        }
+        if (municipioOpt.isEmpty()) {
+            throw new IllegalArgumentException("Município não encontrado para os critérios fornecidos (ID e/ou Nome).");
+        }
+        UUID municipioId = municipioOpt.get().getId();
+        List<Report> reports = reportRepository.buscarReportsPorMunicipioId(municipioId);
+        if (reports.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return reports.stream()
+                .map(this::retornarResponse)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
