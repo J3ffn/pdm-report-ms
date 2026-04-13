@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: pdm-report-ms
+  profiles:
+    active: ${PROFILE_ACTIVE:dev}
+  config:
+    import: optional:application_common.yml,optional:application_dev.yml
