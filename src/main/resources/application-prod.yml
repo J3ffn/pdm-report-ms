@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: ${DATA_POSTGRES_URL}
+    username: ${DATA_POSTGRES_USERNAME}
+    password: ${DATA_POSTGRES_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI}
+          jwk-set-uri: ${JWT_JWK_URI}
+
+logging:
+  level:
+    root: WARN
+    br.ifpb.project.denguemaps: INFO

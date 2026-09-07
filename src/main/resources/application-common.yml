@@ -1,11 +1,8 @@
-server:
-  port: 8082
-
 spring:
   datasource:
-    url: ${DATA_POSTGRES_URL:jdbc:postgresql://localhost:5432/denguemaps_db}
-    username: ${DATA_POSTGRES_USERNAME:denguemaps}
-    password: ${DATA_POSTGRES_PASSWORD:1234}
+    url: ${DATA_POSTGRES_URL:jdbc:postgresql://localhost:5432/pdm_db}
+    username: ${DATA_POSTGRES_USERNAME:pdm_user}
+    password: ${DATA_POSTGRES_PASSWORD:pdm_password}
   jpa:
     hibernate:
       ddl-auto: none
@@ -17,11 +14,5 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${JWT_ISSUER-URI:http://localhost:8080/realms/denguemaps}
-          jwk-set-uri: ${JWT_JWK-URI:http://localhost:8080/realms/denguemaps/protocol/openid-connect/certs}
-
-jwt:
-  auth:
-    converter:
-      resource-id: demo
-      principle-attribute: preferred_username
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080/realms/pdm-realm}
+          jwk-set-uri: ${JWT_JWK_URI:http://localhost:8080/realms/pdm-realm/protocol/openid-connect/certs}

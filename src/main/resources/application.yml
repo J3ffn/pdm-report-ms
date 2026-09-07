@@ -2,28 +2,33 @@ server:
   port: 8082
 
 spring:
-  # Banco de dados H2 temporário para o teste local rodar sem erros
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
+    url: ${DATA_POSTGRES_URL:jdbc:postgresql://localhost:5432/pdm_db}
+    username: ${DATA_POSTGRES_USERNAME:pdm_user}
+    password: ${DATA_POSTGRES_PASSWORD:pdm_password}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
 
-  # Configuração do RabbitMQ conectando ao teu Docker local
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080/realms/pdm-realm}
+          jwk-set-uri: ${JWT_JWK_URI:http://localhost:8080/realms/pdm-realm/protocol/openid-connect/certs}
+
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
     connection-timeout: 5000ms
     template:
       retry:

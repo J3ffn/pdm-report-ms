@@ -1,7 +1,23 @@
+spring:
+  datasource:
+    url: ${DATA_POSTGRES_URL:jdbc:postgresql://localhost:5432/pdm_db}
+    username: ${DATA_POSTGRES_USERNAME:pdm_user}
+    password: ${DATA_POSTGRES_PASSWORD:pdm_password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080/realms/pdm-realm}
+          jwk-set-uri: ${JWT_JWK_URI:http://localhost:8080/realms/pdm-realm/protocol/openid-connect/certs}
+
 logging:
   level:
-    org:
-      springframework:
-        security: DEBUG
-jwt:
-  secret: "JadsonAndersonAlvesFerreira123456789"
+    org.springframework.security: DEBUG
