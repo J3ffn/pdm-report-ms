@@ -1,30 +1,32 @@
 package br.ifpb.project.denguemaps.pdmreportms.producer;
 
 import br.ifpb.project.denguemaps.pdmreportms.config.RabbitMQConfig;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ReportPublisher {
+
+    private static final Logger log = LoggerFactory.getLogger(ReportPublisher.class);
 
     private final RabbitTemplate rabbitTemplate;
 
-    // Injeção de dependência do RabbitTemplate configurado anteriormente
-    public ReportPublisher(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
-
     /**
-     * Método para publicar um evento de reporte na Exchange.
-     * @param routingKey A chave de roteamento (ex: "report.created")
-     * @param message O objeto ou mensagem que queres enviar
+     * Publica um evento de reporte na Exchange topic do RabbitMQ.
+     *
+     * @param routingKey Chave de roteamento (ex: "report.focus.created", "report.symptom.created")
+     * @param message    Objeto a ser serializado como JSON e enviado
      */
     public void publishReportEvent(String routingKey, Object message) {
         try {
             rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, routingKey, message);
-            System.out.println("[RabbitMQ] Mensagem enviada com sucesso para a rota: " + routingKey);
+            log.info("[RabbitMQ] Evento publicado. exchange={}, routingKey={}", RabbitMQConfig.EXCHANGE_NAME, routingKey);
         } catch (Exception e) {
-            System.err.println("[RabbitMQ] Erro ao enviar mensagem: " + e.getMessage());
+            log.error("[RabbitMQ] Falha ao publicar evento. routingKey={}, erro={}", routingKey, e.getMessage(), e);
         }
     }
 }
