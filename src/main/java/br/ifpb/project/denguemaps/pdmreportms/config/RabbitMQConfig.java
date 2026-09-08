@@ -10,12 +10,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    // Nome da Exchange solicitado na issue do GitHub
     public static final String EXCHANGE_NAME = "reports.events";
 
-    /**
-     * Define a Exchange do tipo Topic no RabbitMQ.
-     */
+
     @Bean
     public TopicExchange reportsExchange() {
         return new TopicExchange(EXCHANGE_NAME);

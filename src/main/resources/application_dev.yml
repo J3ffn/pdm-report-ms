@@ -1,7 +1,0 @@
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG
-jwt:
-  secret: "JadsonAndersonAlvesFerreira123456789"
