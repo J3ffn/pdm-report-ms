@@ -8,7 +8,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ----------------------------------------------------------------------------
 -- Tabela: tb_geo
--- Ponto geográfico com índices H3 pré-calculados pelo H3Service
+-- Ponto geográfico. lat/lng são persistidos pelo pdm-report-ms.
+-- Os índices H3 (h3_res8, h3_res6) são preenchidos de forma assíncrona
+-- pelo pdm-geo-worker após consumir o evento RabbitMQ pós-commit.
 -- ----------------------------------------------------------------------------
 CREATE TABLE tb_geo (
     geo_id  UUID             PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -68,7 +70,7 @@ CREATE TABLE tb_report_focus (
 -- ----------------------------------------------------------------------------
 CREATE TABLE tb_report_symptoms (
     report_id           UUID    PRIMARY KEY,
-    respostas           JSON,               -- { "perguntaId": "opcaoId" }
+    respostas           JSONB,              -- { "perguntaId": "opcaoId" }
     score_total         INTEGER NOT NULL,   -- 0–100, calculado pelo frontend
     fk_questionnaire_id UUID    NOT NULL,
 

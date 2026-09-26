@@ -23,8 +23,8 @@ public class ReportPublisher {
      */
     public void publishReportEvent(String routingKey, Object message) {
         try {
-            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, routingKey, message);
-            log.info("[RabbitMQ] Evento publicado. exchange={}, routingKey={}", RabbitMQConfig.EXCHANGE_NAME, routingKey);
+            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, message);
+            log.info("[RabbitMQ] Evento publicado. exchange={}, routingKey={}", RabbitMQConfig.EXCHANGE, routingKey);
         } catch (Exception e) {
             log.error("[RabbitMQ] Falha ao publicar evento. routingKey={}, erro={}", routingKey, e.getMessage(), e);
         }

@@ -1,8 +1,23 @@
 package br.ifpb.project.denguemaps.pdmreportms.model;
 
 import br.ifpb.project.denguemaps.pdmreportms.model.enums.ReportType;
-import jakarta.persistence.*;
-import lombok.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,7 +28,9 @@ import java.util.UUID;
 @Table(name = "tb_reports")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "report_type", discriminatorType = DiscriminatorType.STRING, length = 20)
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public abstract class ReportEntidade {
 
     @Id
@@ -56,4 +73,29 @@ public abstract class ReportEntidade {
      * alinhado com o @DiscriminatorValue declarado na anotação JPA.
      */
     public abstract ReportType getReportType();
+
+    /**
+     * Regra de negócio: desativa o report protegendo invariantes de domínio.
+     * Cidadão desativa apenas o próprio; admin desativa qualquer um.
+     */
+    public void desativar(UUID executorId, boolean isAdmin) {
+        if (Boolean.FALSE.equals(this.isEnabled)) {
+            throw new br.ifpb.project.denguemaps.pdmreportms.exception.BusinessRuleException("Report já está inativo.");
+        }
+        boolean ehDono = this.fkPersonId != null && this.fkPersonId.equals(executorId);
+        if (!isAdmin && !ehDono) {
+            throw new br.ifpb.project.denguemaps.pdmreportms.exception.AccessDeniedException("Sem permissão para desativar este report.");
+        }
+        this.isEnabled = false;
+    }
+
+    /**
+     * Regra de negócio: marca o report como visitado por agente de saúde.
+     */
+    public void marcarVisitado() {
+        if (Boolean.FALSE.equals(this.isEnabled)) {
+            throw new br.ifpb.project.denguemaps.pdmreportms.exception.BusinessRuleException("Report não encontrado ou inativo.");
+        }
+        this.isVisited = true;
+    }
 }
