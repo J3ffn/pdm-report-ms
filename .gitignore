@@ -19,3 +19,6 @@ mvnw.*
 ### VS Code ###
 .vscode/
 
+### Segredos — NUNCA commitar ###
+# .env.example é seguro (sem valores reais) e DEVE ser commitado
+.env

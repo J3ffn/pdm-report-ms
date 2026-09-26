@@ -1,7 +1,71 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: pdm-report-ms
+
   profiles:
-    active: ${PROFILE_ACTIVE:dev}
-  config:
-    import: optional:application_common.yml,optional:application_dev.yml
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: ${DATA_POSTGRES_URL:jdbc:postgresql://localhost:5432/pdm_db}
+    username: ${DATA_POSTGRES_USERNAME:pdm_user}
+    password: ${DATA_POSTGRES_PASSWORD:pdm_password}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false  # desativado em produção — use Loki para ver SQLs em dev
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080/realms/pdm-realm}
+          jwk-set-uri: ${JWT_JWK_URI:http://localhost:8080/realms/pdm-realm/protocol/openid-connect/certs}
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    connection-timeout: 5000ms
+    template:
+      retry:
+        enabled: true
+        initial-interval: 2000ms
+        max-attempts: 5
+
+# Criptografia do CPF — chave AES-256 em Base64 (32 bytes / 44 chars Base64)
+# Para gerar uma chave própria: openssl rand -base64 32
+app:
+  crypto:
+    cpf-aes-key: ${CPF_AES_KEY:MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI=}  # default seguro para dev (32 bytes)
+
+# Observabilidade — Actuator + Prometheus + Loki
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${SPRING_PROFILES_ACTIVE:dev}
+
+# Loki — URL para envio de logs estruturados
+logging:
+  loki:
+    url: ${LOKI_URL:http://localhost:3100}
