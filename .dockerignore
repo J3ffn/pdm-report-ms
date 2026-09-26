@@ -1,0 +1,10 @@
+.git
+.gitignore
+.idea
+*.md
+.env
+.env.example
+target/classes
+target/generated-sources
+target/maven-status
+target/maven-archiver

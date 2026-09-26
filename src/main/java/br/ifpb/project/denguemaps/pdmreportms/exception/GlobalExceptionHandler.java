@@ -54,9 +54,53 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    @ExceptionHandler(ReportNegocioException.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleNaoEncontrado(
+            ResourceNotFoundException ex,
+            HttpServletRequest request) {
+
+        String traceId = UUID.randomUUID().toString();
+
+        log.warn("[{}] Recurso não encontrado em {} {}: {}",
+                traceId, request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+        ErrorResponseDTO body = new ErrorResponseDTO(
+                traceId,
+                HttpStatus.NOT_FOUND.value(),
+                "Não encontrado",
+                ex.getMessage(),
+                OffsetDateTime.now(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class, org.springframework.security.access.AccessDeniedException.class})
+    public ResponseEntity<ErrorResponseDTO> handleAcessoNegado(
+            Exception ex,
+            HttpServletRequest request) {
+
+        String traceId = UUID.randomUUID().toString();
+
+        log.warn("[{}] Acesso negado em {} {}: {}",
+                traceId, request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+        ErrorResponseDTO body = new ErrorResponseDTO(
+                traceId,
+                HttpStatus.FORBIDDEN.value(),
+                "Acesso negado",
+                ex.getMessage() != null ? ex.getMessage() : "Você não possui permissão para executar esta operação.",
+                OffsetDateTime.now(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ErrorResponseDTO> handleNegocio(
-            ReportNegocioException ex,
+            BusinessRuleException ex,
             HttpServletRequest request) {
 
         String traceId = UUID.randomUUID().toString();
@@ -74,6 +118,28 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.unprocessableEntity().body(body);
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class, org.springframework.http.converter.HttpMessageNotReadableException.class})
+    public ResponseEntity<ErrorResponseDTO> handleRequisicaoInvalida(
+            Exception ex,
+            HttpServletRequest request) {
+
+        String traceId = UUID.randomUUID().toString();
+
+        log.warn("[{}] Requisição inválida em {} {}: {}",
+                traceId, request.getMethod(), request.getRequestURI(), ex.getMessage());
+
+        ErrorResponseDTO body = new ErrorResponseDTO(
+                traceId,
+                HttpStatus.BAD_REQUEST.value(),
+                "Requisição inválida",
+                ex.getMessage(),
+                OffsetDateTime.now(),
+                null
+        );
+
+        return ResponseEntity.badRequest().body(body);
     }
 
     // -------------------------------------------------------------------------

@@ -2,8 +2,14 @@ package br.ifpb.project.denguemaps.pdmreportms.model;
 
 import br.ifpb.project.denguemaps.pdmreportms.model.enums.ReportType;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
-import jakarta.persistence.*;
-import lombok.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 
 import java.util.Map;
@@ -12,7 +18,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "tb_report_symptoms")
 @DiscriminatorValue("SYMPTOM")
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public class ReportSymptomsEntidade extends ReportEntidade {
 
     /**
@@ -20,7 +28,7 @@ public class ReportSymptomsEntidade extends ReportEntidade {
      * Armazena o mapeamento de qual opção foi escolhida para cada pergunta.
      */
     @Type(JsonType.class)
-    @Column(name = "respostas", columnDefinition = "json")
+    @Column(name = "respostas", columnDefinition = "jsonb")
     private Map<String, String> respostas;
 
     /**

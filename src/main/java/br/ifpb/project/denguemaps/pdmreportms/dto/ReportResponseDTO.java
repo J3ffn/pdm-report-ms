@@ -16,5 +16,6 @@ public record ReportResponseDTO(
         Long h3Res6,
         Boolean isEnabled,
         Boolean isDisease,
+        Boolean isVisited,
         OffsetDateTime createdAt
 ) {}

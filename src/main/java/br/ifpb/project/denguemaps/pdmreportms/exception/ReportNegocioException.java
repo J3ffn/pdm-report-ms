@@ -5,7 +5,7 @@ package br.ifpb.project.denguemaps.pdmreportms.exception;
  * Lançada quando uma validação de domínio falha (não é erro técnico).
  * O GlobalExceptionHandler converte para HTTP 422 (Unprocessable Entity).
  */
-public class ReportNegocioException extends RuntimeException {
+public class ReportNegocioException extends BusinessRuleException {
 
     public ReportNegocioException(String mensagem) {
         super(mensagem);

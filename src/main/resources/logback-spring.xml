@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Referência ao Logback padrão do Spring Boot (inclui console com cores) -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <!-- Lê a URL do Loki do application.yml via Spring -->
+    <springProperty scope="context" name="LOKI_URL" source="logging.loki.url" defaultValue="http://localhost:3100"/>
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="pdm-report-ms"/>
+    <springProperty scope="context" name="ENV"      source="spring.profiles.active"  defaultValue="dev"/>
+
+    <!-- Appender Loki — envia logs JSON diretamente ao Loki -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>${LOKI_URL}/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <!-- Labels indexados pelo Loki — mantidos ao mínimo (KISS) -->
+                <pattern>app=${APP_NAME},env=${ENV},level=%level,logger=%logger{20}</pattern>
+            </label>
+            <message class="com.github.loki4j.logback.JsonLayout"/>
+        </format>
+        <!-- Não bloqueia a aplicação em caso de falha do Loki -->
+        <dropOnShutdown>true</dropOnShutdown>
+    </appender>
+
+    <!-- Em dev: console + Loki. Em prod: apenas Loki (desabilitar CONSOLE no perfil prod) -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="LOKI"/>
+        </root>
+        <logger name="br.ifpb.project.denguemaps" level="DEBUG"/>
+        <logger name="org.springframework.security" level="DEBUG"/>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="LOKI"/>
+        </root>
+    </springProfile>
+
+</configuration>

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,7 +41,7 @@ public class ReportSymptomsRequestDTO {
 
     /**
      * Score pré-calculado pelo frontend com base nos pesos (weight) de cada opção.
-     * O frontend já buscou o template com os weights e os somou.
+     * O frontend buscou o template via questionnaire-ms e somou os pesos das opções selecionadas.
      * Enviado como inteiro (0-100).
      */
     @NotNull(message = "Score total é obrigatório")
@@ -52,6 +53,14 @@ public class ReportSymptomsRequestDTO {
     @NotNull(message = "ID do questionário é obrigatório")
     private UUID questionnaireId;
 
-    /** Hash do CPF para cidadãos sem conta (opcional se tiver JWT) */
-    private String cpfHash;
+    /**
+     * CPF do cidadão anônimo (sem conta) — 11 dígitos numéricos, sem pontos ou traços.
+     * Obrigatório quando o request não possui JWT de autenticação.
+     * O CPF bruto NUNCA é persistido: o servidor aplica AES-256-GCM antes de salvar.
+     */
+    @Pattern(
+            regexp = "\\d{11}",
+            message = "CPF deve conter exatamente 11 dígitos numéricos (sem pontos ou traços)"
+    )
+    private String cpf;
 }
